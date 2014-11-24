@@ -55,8 +55,8 @@ void CTopView::OnInitialUpdate()
 	m_ListIPPacketInfo.InsertColumn(1, _T("Length"), LVCFMT_CENTER, 50);
 	m_ListIPPacketInfo.InsertColumn(2, _T("수신 MAC 주소"), LVCFMT_CENTER, 130);
 	m_ListIPPacketInfo.InsertColumn(3, _T("발신 MAC 주소"), LVCFMT_CENTER, 130);
-	m_ListIPPacketInfo.InsertColumn(4, _T("근원지 IP 주소"), LVCFMT_CENTER, 100);
-	m_ListIPPacketInfo.InsertColumn(5, _T("목적지 IP 주소"), LVCFMT_CENTER, 100);
+	m_ListIPPacketInfo.InsertColumn(4, _T("근원지 IP 주소"), LVCFMT_CENTER, 110);
+	m_ListIPPacketInfo.InsertColumn(5, _T("목적지 IP 주소"), LVCFMT_CENTER, 110);
 	m_ListIPPacketInfo.InsertColumn(6, _T("네트워크 계층"), LVCFMT_CENTER, 100);
 	m_ListIPPacketInfo.InsertColumn(7, _T("트랜스포트 계층"), LVCFMT_CENTER, 100);
 	m_ListIPPacketInfo.InsertColumn(8, _T("응용 계층"), LVCFMT_CENTER, 100);
