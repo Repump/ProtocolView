@@ -100,7 +100,7 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 			return;
 		}
 
-		//선택된 네트워크 어뎁터를 사용할 수 있도록 초기화.
+		//선택된 네트워크 어댑터를 사용할 수 있도록 초기화.
 		if(pDlg->OpenAdaptor(0))
 		{
 			::AfxMessageBox(_T("Adaptor open 실패"));
@@ -112,7 +112,7 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 		}
 #define MaxBufferLen	2048
 		UpdateData(TRUE);
-		for (int i=0; i<10; i++)
+		for (int i=0; i<20; i++)
 		{
 			int len;
 			unsigned char arrTemp[MaxBufferLen];
@@ -124,19 +124,19 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 				continue;
 			}
 
-			// 1. Num
+			// 0. Num
 			CString strNum;
 			strNum.Format(_T("%3d"), i+1);
 			m_LIST_PacketInfo.InsertItem(LVIF_TEXT, i,
 				strNum, 0, 0, 0, 0);
 
-			// 2. Length
+			// 1. Length
 			CString strLen;
 			strLen.Format(_T("%d"), len);
 			m_LIST_PacketInfo.SetItem(i, 1, LVIF_TEXT, 
 				strLen, 0, 0, 0, 0);
 
-			// 3. 수신 MAC 주소
+			// 2. 수신 MAC 주소
 			CString strDestMac;
 			strDestMac.Format(
 				_T("%02X %02X %02X - %02X %02X %02X"),
@@ -145,7 +145,7 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 			m_LIST_PacketInfo.SetItem(i, 2, LVIF_TEXT,
 				strDestMac, 0, 0, 0, 0);
 
-			// 4. 발신 MAC 주소
+			// 3. 발신 MAC 주소
 			CString strSrcMac;
 			strSrcMac.Format(
 				_T("%02X %02X %02X - %02X %02X %02X"),
@@ -154,29 +154,43 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 			m_LIST_PacketInfo.SetItem(i, 3, LVIF_TEXT,
 				strSrcMac, 0, 0, 0, 0);
 
-			// 5. 근원지 IP 주소
+			// 4. 근원지 IP 주소
 			CString strSrcIP;
 			strSrcIP.Format(_T("%d.%d.%d.%d"),
 				arrTemp[26], arrTemp[27], arrTemp[28], arrTemp[29]);
-			m_LIST_PacketInfo.SetItem(i, 5, LVIF_TEXT,
+			m_LIST_PacketInfo.SetItem(i, 4, LVIF_TEXT,
 				strSrcIP, 0, 0, 0, 0);
 
-			// 6. 목적지 IP 주소
+			// 5. 목적지 IP 주소
 			CString strDestIP;
 			strDestIP.Format(_T("%d.%d.%d.%d"),
 				arrTemp[30], arrTemp[31], arrTemp[32], arrTemp[33]);
-			m_LIST_PacketInfo.SetItem(i, 4, LVIF_TEXT,
+			m_LIST_PacketInfo.SetItem(i, 5, LVIF_TEXT,
 				strDestIP, 0, 0, 0, 0);
 
-			// 상위 프로토콜
+			// 6. 네트워크 계층
 			CString strType;
 			unsigned int iTypeORLength = 
 				pDlg->Twobytes_to_number(arrTemp[12], arrTemp[13]);
+			if (iTypeORLength == 0x0800) {
+				strType.Format(_T("IP"));
 
-			strType.Format(_T("%02X %02X(Hex), %d(Decimal)"),
-				arrTemp[12], arrTemp[13], iTypeORLength);
+			} else if (iTypeORLength == 0x0806) {
+				strType.Format(_T("ARP"));
+
+			} else if (iTypeORLength <= 0x1500) {
+				strType.Format(_T("IEEE 802.3"));
+
+			} else {
+				strType.Format(_T("ETC"));
+			}
 			m_LIST_PacketInfo.SetItem(i, 6, LVIF_TEXT,
 				strType, 0 , 0, 0, 0);
+
+			// 7. 트랜스포트 계층
+			
+
+			// 8. 응용 계층
 
 			//m_EDIT_iCountOutput = i+1;
 			UpdateData(FALSE);
