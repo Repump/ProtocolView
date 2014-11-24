@@ -170,25 +170,36 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 
 			// 6. 네트워크 계층
 			CString strType;
+			bool isIP = false;
 			unsigned int iTypeORLength = 
 				pDlg->Twobytes_to_number(arrTemp[12], arrTemp[13]);
 			if (iTypeORLength == 0x0800) {
 				strType.Format(_T("IP"));
-
+				isIP = true;
 			} else if (iTypeORLength == 0x0806) {
 				strType.Format(_T("ARP"));
-
 			} else if (iTypeORLength <= 0x1500) {
 				strType.Format(_T("IEEE 802.3"));
-
 			} else {
 				strType.Format(_T("ETC"));
 			}
 			m_LIST_PacketInfo.SetItem(i, 6, LVIF_TEXT,
-				strType, 0 , 0, 0, 0);
+				strType, 0, 0, 0, 0);
 
 			// 7. 트랜스포트 계층
-			
+			CString strTransType;
+			if(isIP) {
+				unsigned int iTransType = arrTemp[23];
+				if (iTransType == 0x06) {
+					strTransType.Format(_T("TCP"));
+				} else if (iTransType == 0x11) { 
+					strTransType.Format(_T("UDP"));
+				} else if (iTransType == 0x01) { 
+					strTransType.Format(_T("IMCP"));
+				}
+			}
+			m_LIST_PacketInfo.SetItem(i, 7, LVIF_TEXT,
+				strTransType, 0, 0, 0, 0);
 
 			// 8. 응용 계층
 
