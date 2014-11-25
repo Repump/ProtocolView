@@ -111,8 +111,9 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 			return;
 		}
 #define MaxBufferLen	2048
+#define EtherHeaderLength 14
 		UpdateData(TRUE);
-		for (int i=0; i<20; i++)
+		for (int i=0; i<100; i++)
 		{
 			int len;
 			unsigned char arrTemp[MaxBufferLen];
@@ -188,12 +189,16 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 
 			// 7. 트랜스포트 계층
 			CString strTransType;
-			if(isIP) {
+			bool isTCP = false;
+			bool isUDP = false;
+			if (isIP) {
 				unsigned int iTransType = arrTemp[23];
 				if (iTransType == 0x06) {
 					strTransType.Format(_T("TCP"));
+					isTCP = true;
 				} else if (iTransType == 0x11) { 
 					strTransType.Format(_T("UDP"));
+					isUDP = true;
 				} else if (iTransType == 0x01) { 
 					strTransType.Format(_T("IMCP"));
 				}
@@ -202,6 +207,28 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 				strTransType, 0, 0, 0, 0);
 
 			// 8. 응용 계층
+			CString strAppType;
+			if (isTCP || isUDP) {
+				unsigned int iSrcPort = 
+				pDlg->Twobytes_to_number(arrTemp[36], arrTemp[37]);
+				unsigned int iDestPort = 
+				pDlg->Twobytes_to_number(arrTemp[38], arrTemp[39]);
+				
+				strAppType.Format(_T("%d -> %d", iSrcPort, iDestPort));
+				/*switch(iPortNum) {
+				case 7: strAppType.Format(_T("ECHO")); break;
+				case 20: 
+				case 21: strAppType.Format(_T("FTP")); break;
+				case 22: strAppType.Format(_T("SFTP")); break;
+				case 23: strAppType.Format(_T("TELNET")); break;
+				case 25: strAppType.Format(_T("SMTP")); break;
+				case 53: strAppType.Format(_T("DNS")); break;
+				case 80: strAppType.Format(_T("HTTP")); break;
+				default: strAppType.Format(_T("ETC"));
+				}*/
+			}
+			m_LIST_PacketInfo.SetItem(i, 8, LVIF_TEXT,
+				strAppType, 0, 0, 0, 0);
 
 			//m_EDIT_iCountOutput = i+1;
 			UpdateData(FALSE);
