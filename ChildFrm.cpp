@@ -254,10 +254,22 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 		CRightView * rightview = (CRightView *)this->m_wndSplitter2.GetPane(0,1);
 		CEdit &m_edit_info = rightview->GetEditCtrl();
 
-		m_Tree_info.DeleteAllItems();// 葛电 亲格 昏力 
-		m_Tree_info.InsertItem(_T("TCP/IP Packet Analyze"), 0, 0);
-		m_Tree_info.InsertItem(_T("Ethernet 802.3"), 0, 0);
+		m_Tree_info.DeleteAllItems();// 葛电 亲格 昏力
+		
+		// LeftView
+		// m_Tree_info.InsertItem(_T("TCP/IP Packet Analyze"), 0, 0);
+		// m_Tree_info.InsertItem(_T("Ethernet 802.3"), 0, 0);
+		m_Tree_info.ModifyStyle(NULL, NULL, TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS);
+		HTREEITEM hRoot;
+		hRoot = m_Tree_info.InsertItem(_T("---- Packet Details ----"), 0, 0, TVI_ROOT, TVI_LAST);
+		HTREEITEM hEthernet;		
+		hEthernet = m_Tree_info.InsertItem(_T("---- Ethernet Header ----"), 0, 0, hRoot, TVI_LAST);
+		
+		m_Tree_info.Expand(hRoot, TVE_EXPAND);
 
-		CString str = _T("0000 00 01 02 03 04");
-		m_edit_info.SetWindowTextW(str);
+		// RightView
+		CString str;
+		//_T("0000 00 01 02 03 04");
+		
+		// m_edit_info.SetWindowTextW(str);
 	}
