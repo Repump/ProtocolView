@@ -29,6 +29,9 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 	CChildFrame::CChildFrame()
 	{
 		// TODO: 여기에 멤버 초기화 코드를 추가합니다.
+		//for (int i=0; i<100; i++) {
+		//	arrPacket[i] = 0;
+		//}
 	}
 
 	CChildFrame::~CChildFrame()
@@ -89,6 +92,9 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 	void CChildFrame::OnStartCapture()
 	{
 		// TODO: 여기에 명령 처리기 코드를 추가합니다.
+		// 패킷 개수 선택
+		
+
 		CTopView * topview = (CTopView *)m_wndSplitter1.GetPane(0,0);
 		CListCtrl &m_LIST_PacketInfo = topview->GetListCtrl();
 
@@ -110,6 +116,19 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 
 			return;
 		}
+		// 리스트 목록 초기화
+		m_LIST_PacketInfo.DeleteAllItems();
+
+		// 폰트 변경
+		LOGFONT lf;
+		memset(&lf, 0, sizeof(LOGFONT));
+		lf.lfHeight = 12;
+		lf.lfCharSet = DEFAULT_CHARSET;
+		lstrcpy(lf.lfFaceName,_T("굴림체"));
+		HFONT hfont = ::CreateFontIndirect(&lf);
+		CFont *pfont = CFont::FromHandle(hfont);
+		m_LIST_PacketInfo.SetFont(pfont);
+
 #define MaxBufferLen	2048
 #define EtherHeaderLength 14
 		UpdateData(TRUE);
@@ -124,6 +143,9 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 				i--;
 				continue;
 			}
+
+			// Packet 복사
+			memcpy(&arrPacket[i], arrTemp, len);
 
 			// 0. Num
 			CString strNum;
@@ -210,10 +232,10 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 			CString strAppType;
 			if (isTCP || isUDP) {
 				unsigned int iSrcPort = 
-				pDlg->Twobytes_to_number(arrTemp[36], arrTemp[37]);
+					pDlg->Twobytes_to_number(arrTemp[34], arrTemp[35]);
 				unsigned int iDestPort = 
-				pDlg->Twobytes_to_number(arrTemp[38], arrTemp[39]);
-				
+					pDlg->Twobytes_to_number(arrTemp[38], arrTemp[39]);
+
 				strAppType.Format(_T("%d -> %d", iSrcPort, iDestPort));
 				/*switch(iPortNum) {
 				case 7: strAppType.Format(_T("ECHO")); break;
@@ -245,31 +267,46 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 		int ListSeletedNum = item;
 
 		// TODO: Add your control notification handler code here
+		// 폰트 설정
+		LOGFONT lf;
+		memset(&lf, 0, sizeof(LOGFONT));
+		lf.lfHeight = 12;
+		lf.lfCharSet = DEFAULT_CHARSET;
+		lstrcpy(lf.lfFaceName,_T("굴림체"));
+		HFONT hfont = ::CreateFontIndirect(&lf);
+		CFont *pfont = CFont::FromHandle(hfont);
+
 		CTopView * topview = (CTopView *)this->m_wndSplitter1.GetPane(0,0);
 		CListCtrl &m_ListIPPacketInfo = topview->GetListCtrl();
+		m_ListIPPacketInfo.SetFont(pfont);
 
 		CLeftView * leftview = (CLeftView *)this->m_wndSplitter2.GetPane(0,0);
 		CTreeCtrl &m_Tree_info = leftview->GetTreeCtrl();
+		m_Tree_info.SetFont(pfont);
 
 		CRightView * rightview = (CRightView *)this->m_wndSplitter2.GetPane(0,1);
 		CEdit &m_edit_info = rightview->GetEditCtrl();
+		m_edit_info.SetFont(pfont);
 
-		m_Tree_info.DeleteAllItems();// 모든 항목 삭제
+		// Packet 가져오기
+		//CString arrTemp(&arrPacket[item]);
 		
 		// LeftView
-		// m_Tree_info.InsertItem(_T("TCP/IP Packet Analyze"), 0, 0);
-		// m_Tree_info.InsertItem(_T("Ethernet 802.3"), 0, 0);
-		m_Tree_info.ModifyStyle(NULL, NULL, TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS);
-		HTREEITEM hRoot;
-		hRoot = m_Tree_info.InsertItem(_T("---- Packet Details ----"), 0, 0, TVI_ROOT, TVI_LAST);
-		HTREEITEM hEthernet;		
-		hEthernet = m_Tree_info.InsertItem(_T("---- Ethernet Header ----"), 0, 0, hRoot, TVI_LAST);
-		
+		m_Tree_info.DeleteAllItems(); // 모든 항목 삭제
+		m_Tree_info.ModifyStyle(NULL, TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS, 0);
+		HTREEITEM hRoot = m_Tree_info.InsertItem(_T("---- Packet Details ----"), 0, 0, TVI_ROOT, TVI_LAST);
+		HTREEITEM hEthernet = m_Tree_info.InsertItem(_T("---- Ethernet Header ----"), 0, 0, hRoot, TVI_LAST);
+		//CString strDstMac;
+		//strDstMac.Format(_T("Destination = %02X %02X %02X - %02X %02X %02X"), arrTemp[6], arrTemp[7], arrTemp[8], arrTemp[9], arrTemp[10], arrTemp[11]);
+		//HTREEITEM hDstMac = m_Tree_info.InsertItem(strDstMac, 0, 0, hEthernet, TVI_LAST);
+		//CString strSrcMac;
+		//strSrcMac.Format(_T("Source = %02X %02X %02X - %02X %02X %02X"), arrTemp[12], arrTemp[13], arrTemp[14], arrTemp[15], arrTemp[16], arrTemp[17]);
+		//HTREEITEM hSrcMac = m_Tree_info.InsertItem(strSrcMac, 0, 0, hEthernet, TVI_LAST);;
+		HTREEITEM hEType = m_Tree_info.InsertItem(_T("Ethertype = 0800h"), 0, 0, hEthernet, TVI_LAST);
+
 		m_Tree_info.Expand(hRoot, TVE_EXPAND);
 
 		// RightView
-		CString str;
-		//_T("0000 00 01 02 03 04");
-		
-		// m_edit_info.SetWindowTextW(str);
+		//CString str;
+		//m_edit_info.SetWindowTextW(str);
 	}

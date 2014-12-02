@@ -56,7 +56,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>c:\winpcap\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\winpcap\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>ncap.lib</AdditionalDependencies>
     </Link>
     <Midl>

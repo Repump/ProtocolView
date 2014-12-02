@@ -36,4 +36,5 @@ protected:
 public:
 	afx_msg void OnStartCapture();
 	void ListClick(int item);
+	unsigned char arrPacket[100];
 };
